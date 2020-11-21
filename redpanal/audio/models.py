@@ -23,12 +23,15 @@ from pydub.exceptions import CouldntDecodeError
 from redpanal.utils.models import BaseModelMixin
 from core import licenses
 from .waveform import Waveform
-
+from apicultor.utils.algorithms import *
+from soundfile import read
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
 LICENSES_CHOICES = [(lic.code, lic.name) for lic in licenses.LICENSES.values()]
 
+#TODO: genre classification
 GENRE_CHOICES = (
     ("pop", _("pop")),
     ("rock", _("rock")),
@@ -86,7 +89,9 @@ class Audio(models.Model, BaseModelMixin):
     genre = models.CharField(_('genre'), max_length=30, choices=GENRE_CHOICES)
     use_type = models.CharField(_('type'), max_length=30, choices=TYPE_CHOICES)
     instrument = models.CharField(_('instrument'), max_length=30, choices=INSTRUMENT_CHOICES)
-
+    #affinity = models.CharField(_('danceability'), max_length=30, choices=None, default: 1.5)
+    #centroid = models.CharField(_('centroid'), max_length=30, choices=None, default: 1.5)
+    #hfc = models.CharField(_('hfc'), max_length=30, choices=None, default: 1.5)
     channels = models.IntegerField(null=True, editable=False)
     blocksize  =  models.IntegerField(null=True, editable=False)
     samplerate  =  models.IntegerField(null=True, editable=False)
@@ -104,6 +109,30 @@ class Audio(models.Model, BaseModelMixin):
         super(Audio, self).__init__(*args, **kwargs)
         if (self.audio):
             self.original_audio_file = self.audio.path
+            #self.signal,self.fs = read(self.original_audio_file)
+            #self.signal = mono_stereo(self.signal)
+            #self.MIR = MIR(self.signal,self.fs)
+
+    #def get_danceability(self):
+    #    return danceability(self.signal,None,self.fs)
+
+    #def get_centroid(self):
+    #    centroids = []
+    #    for frame in self.MIR.FrameGenerator():
+    #        self.MIR.window()
+    #        self.MIR.Spectrum()
+    #        self.MIR.centroid()
+    #        centroids.append(self.MIR.spectral_centroid())
+    #    return np.mean(centroids)    
+
+    #def get_hfc(self):
+    #    hfcs = []
+    #    for frame in self.MIR.FrameGenerator():
+    #        self.MIR.window()
+    #        self.MIR.Spectrum()
+    #        self.MIR.hfc()
+    #        hfcs.append(self.MIR.hfc())
+    #    return np.mean(hfcs) 
 
     def get_duration(self):
         duration = None
